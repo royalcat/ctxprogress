@@ -21,7 +21,7 @@ type ProgressTree struct {
 }
 
 // Progress implements Progress.
-func (p *ProgressTree) Progress() (current int, total int) {
+func (p ProgressTree) Progress() (current int, total int) {
 	return p.Entry.Progress()
 }
 

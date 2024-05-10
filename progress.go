@@ -49,9 +49,7 @@ func Get(ctx context.Context) Progress {
 		return nil
 	}
 
-	prg := e.progress()
-
-	return &prg
+	return e.progress()
 }
 
 func GetTree(ctx context.Context) ProgressTree {
