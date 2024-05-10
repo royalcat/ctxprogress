@@ -4,37 +4,45 @@ type progressKey uint
 
 const entryCtxKey = progressKey(0)
 
-type progressEntry[P any] struct {
-	total      int
-	current    int
-	properties P
+type progressEntry struct {
+	current Progress
 
-	parent *progressEntry[P]
-	clbs   []Callback[P]
+	clbs []Callback
 
-	children []*progressEntry[P]
+	parent *progressEntry
+
+	children []*progressEntry
 }
 
-func (e *progressEntry[D]) progress() Progress[D] {
-	p := Progress[D]{
-		Properties: e.properties,
-		Current:    e.current,
-		Total:      e.total,
-		Children:   make([]Progress[D], 0, len(e.children)),
+type ProgressTree struct {
+	Progress
+
+	Children []ProgressTree
+}
+
+func (e *progressEntry) progress() ProgressTree {
+	p := ProgressTree{
+		Progress: e.current,
+		Children: make([]ProgressTree, 0, len(e.children)),
 	}
 
 	for _, ce := range e.children {
-		p.Children = append(p.Children, ce.progress())
+		prg := ce.progress()
+		if prg.Progress == nil {
+			continue
+		}
+
+		p.Children = append(p.Children, prg)
 	}
 
 	return p
 }
 
-func (e *progressEntry[D]) addChild(child *progressEntry[D]) {
+func (e *progressEntry) addChild(child *progressEntry) {
 	e.children = append(e.children, child)
 }
 
-func (e *progressEntry[D]) update() {
+func (e *progressEntry) update() {
 	if e.parent != nil {
 		e.parent.update()
 	}

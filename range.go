@@ -4,14 +4,23 @@ import (
 	"context"
 )
 
+type RangeProgress struct {
+	current int
+	total   int
+}
+
+func (s RangeProgress) Current() int { return s.current }
+
+func (s RangeProgress) Total() int { return s.total }
+
 func Range[D any](ctx context.Context, vals []D, iter func(context.Context, int, D) bool) {
 	for i, val := range vals {
-		Set[Empty](ctx, i, len(vals))
+		Set(ctx, RangeProgress{current: i, total: len(vals)})
 
-		if !iter(Context[Empty](ctx, Empty{}), i, val) {
+		if !iter(Context(ctx), i, val) {
 			return
 		}
 	}
 
-	Set[Empty](ctx, len(vals), len(vals))
+	Set(ctx, RangeProgress{current: len(vals), total: len(vals)})
 }
