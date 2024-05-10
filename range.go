@@ -9,9 +9,7 @@ type RangeProgress struct {
 	total   int
 }
 
-func (s RangeProgress) Current() int { return s.current }
-
-func (s RangeProgress) Total() int { return s.total }
+func (s RangeProgress) Progress() (int, int) { return s.current, s.total }
 
 func Range[D any](ctx context.Context, vals []D, iter func(context.Context, int, D) bool) {
 	for i, val := range vals {

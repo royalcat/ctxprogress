@@ -12,10 +12,11 @@ func TestRange(t *testing.T) {
 	ctx := context.Background()
 	ctx = ctxprogress.Context(ctx)
 	i := 0
-	ctxprogress.AddCallback(ctx, func(p ctxprogress.ProgressTree) {
-		must.GreaterEq(t, p.Current(), p.Total())
-		must.Eq(t, 3, p.Total())
-		must.Eq(t, i, p.Current())
+	ctxprogress.AddCallbackTree(ctx, func(p ctxprogress.ProgressTree) {
+		current, total := p.Progress()
+		must.GreaterEq(t, current, total)
+		must.Eq(t, 3, total)
+		must.Eq(t, i, current)
 		i++
 	})
 	arr := []int{1, 2, 3}
@@ -30,10 +31,11 @@ func TestNested(t *testing.T) {
 
 	ctx = ctxprogress.Context(ctx)
 	i := 0
-	ctxprogress.AddCallback(ctx, func(p ctxprogress.ProgressTree) {
-		must.GreaterEq(t, p.Current(), p.Total())
-		must.Eq(t, 3, p.Total())
-		if p.Current() == i {
+	ctxprogress.AddCallbackTree(ctx, func(p ctxprogress.ProgressTree) {
+		current, total := p.Progress()
+		must.GreaterEq(t, current, total)
+		must.Eq(t, 3, total)
+		if current == i {
 			i++
 		}
 	})
@@ -43,10 +45,11 @@ func TestNested(t *testing.T) {
 	ctxprogress.Range(ctx, arr1,
 		func(ctx context.Context, _ int, _ int) bool {
 			j := 0
-			ctxprogress.AddCallback(ctx, func(p ctxprogress.ProgressTree) {
-				must.GreaterEq(t, p.Current(), p.Total())
-				must.Eq(t, 4, p.Total())
-				must.Eq(t, j, p.Current())
+			ctxprogress.AddCallbackTree(ctx, func(p ctxprogress.ProgressTree) {
+				current, total := p.Progress()
+				must.GreaterEq(t, current, total)
+				must.Eq(t, 4, total)
+				must.Eq(t, j, current)
 				j++
 			})
 			ctxprogress.Range(ctx, arr2,

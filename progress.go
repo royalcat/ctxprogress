@@ -5,11 +5,8 @@ import (
 )
 
 type Progress interface {
-	Current() int
-	Total() int
+	Progress() (current, total int)
 }
-
-type Callback func(ProgressTree)
 
 func nestProgress(ctx context.Context) context.Context {
 	entry := &progressEntry{
@@ -27,9 +24,18 @@ func Context(ctx context.Context) context.Context {
 	return nestProgress(ctx)
 }
 
+type Callback func(Progress)
+
 func AddCallback(ctx context.Context, clb Callback) {
 	entry := getNode(ctx)
 	entry.clbs = append(entry.clbs, clb)
+}
+
+type CallbackTree func(ProgressTree)
+
+func AddCallbackTree(ctx context.Context, clb CallbackTree) {
+	entry := getNode(ctx)
+	entry.clbsTrs = append(entry.clbsTrs, clb)
 }
 
 func Get(ctx context.Context) Progress {
@@ -41,6 +47,22 @@ func Get(ctx context.Context) Progress {
 	e, ok := ti.(*progressEntry)
 	if !ok || e == nil {
 		return nil
+	}
+
+	prg := e.progress()
+
+	return &prg
+}
+
+func GetTree(ctx context.Context) ProgressTree {
+	ti := ctx.Value(entryCtxKey)
+	if ti == nil {
+		return ProgressTree{}
+	}
+
+	e, ok := ti.(*progressEntry)
+	if !ok || e == nil {
+		return ProgressTree{}
 	}
 
 	return e.progress()

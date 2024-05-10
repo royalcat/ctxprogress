@@ -7,7 +7,8 @@ const entryCtxKey = progressKey(0)
 type progressEntry struct {
 	current Progress
 
-	clbs []Callback
+	clbsTrs []CallbackTree
+	clbs    []Callback
 
 	parent *progressEntry
 
@@ -15,20 +16,24 @@ type progressEntry struct {
 }
 
 type ProgressTree struct {
-	Progress
-
+	Entry    Progress
 	Children []ProgressTree
+}
+
+// Progress implements Progress.
+func (p *ProgressTree) Progress() (current int, total int) {
+	return p.Entry.Progress()
 }
 
 func (e *progressEntry) progress() ProgressTree {
 	p := ProgressTree{
-		Progress: e.current,
+		Entry:    e.current,
 		Children: make([]ProgressTree, 0, len(e.children)),
 	}
 
 	for _, ce := range e.children {
 		prg := ce.progress()
-		if prg.Progress == nil {
+		if prg.Entry == nil {
 			continue
 		}
 
@@ -47,7 +52,12 @@ func (e *progressEntry) update() {
 		e.parent.update()
 	}
 
+	pt := e.progress()
+	for i := len(e.clbsTrs) - 1; i >= 0; i-- {
+		e.clbsTrs[i](pt)
+	}
+
 	for i := len(e.clbs) - 1; i >= 0; i-- {
-		e.clbs[i](e.progress())
+		e.clbs[i](pt.Entry)
 	}
 }
