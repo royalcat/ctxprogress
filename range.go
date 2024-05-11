@@ -5,20 +5,20 @@ import (
 )
 
 type RangeProgress struct {
-	current int
-	total   int
+	Current int
+	Total   int
 }
 
-func (s RangeProgress) Progress() (int, int) { return s.current, s.total }
+func (s RangeProgress) Progress() (int, int) { return s.Current, s.Total }
 
 func Range[D any](ctx context.Context, vals []D, iter func(context.Context, int, D) bool) {
 	for i, val := range vals {
-		Set(ctx, RangeProgress{current: i, total: len(vals)})
+		Set(ctx, RangeProgress{Current: i, Total: len(vals)})
 
-		if !iter(Context(ctx), i, val) {
+		if !iter(New(ctx), i, val) {
 			return
 		}
 	}
 
-	Set(ctx, RangeProgress{current: len(vals), total: len(vals)})
+	Set(ctx, RangeProgress{Current: len(vals), Total: len(vals)})
 }

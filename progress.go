@@ -20,7 +20,7 @@ func nestProgress(ctx context.Context) context.Context {
 	return context.WithValue(ctx, entryCtxKey, entry)
 }
 
-func Context(ctx context.Context) context.Context {
+func New(ctx context.Context) context.Context {
 	return nestProgress(ctx)
 }
 
@@ -66,7 +66,7 @@ func GetTree(ctx context.Context) ProgressTree {
 	return e.progress()
 }
 
-func Set(ctx context.Context, prg Progress) {
+func Set[P Progress](ctx context.Context, prg P) {
 	entry := getNode(ctx)
 	entry.current = prg
 	entry.update()

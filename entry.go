@@ -10,8 +10,7 @@ type progressEntry struct {
 	clbsTrs []CallbackTree
 	clbs    []Callback
 
-	parent *progressEntry
-
+	parent   *progressEntry
 	children []*progressEntry
 }
 
@@ -52,12 +51,15 @@ func (e *progressEntry) update() {
 		e.parent.update()
 	}
 
-	pt := e.progress()
-	for i := len(e.clbsTrs) - 1; i >= 0; i-- {
-		e.clbsTrs[i](pt)
+	if len(e.clbsTrs) > 0 || len(e.clbs) > 0 {
+		pt := e.progress()
+		for i := len(e.clbsTrs) - 1; i >= 0; i-- {
+			e.clbsTrs[i](pt)
+		}
+
+		for i := len(e.clbs) - 1; i >= 0; i-- {
+			e.clbs[i](pt.Entry)
+		}
 	}
 
-	for i := len(e.clbs) - 1; i >= 0; i-- {
-		e.clbs[i](pt.Entry)
-	}
 }

@@ -10,7 +10,7 @@ import (
 
 func TestRange(t *testing.T) {
 	ctx := context.Background()
-	ctx = ctxprogress.Context(ctx)
+	ctx = ctxprogress.New(ctx)
 	i := 0
 	ctxprogress.AddCallbackTree(ctx, func(p ctxprogress.ProgressTree) {
 		current, total := p.Progress()
@@ -29,7 +29,7 @@ func TestRange(t *testing.T) {
 func TestNested(t *testing.T) {
 	ctx := context.Background()
 
-	ctx = ctxprogress.Context(ctx)
+	ctx = ctxprogress.New(ctx)
 	i := 0
 	ctxprogress.AddCallbackTree(ctx, func(p ctxprogress.ProgressTree) {
 		current, total := p.Progress()
