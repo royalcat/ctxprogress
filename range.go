@@ -11,11 +11,12 @@ type RangeProgress struct {
 
 func (s RangeProgress) Progress() (int, int) { return s.Current, s.Total }
 
-func Range[D any](ctx context.Context, vals []D, iter func(context.Context, int, D) bool) {
+func Range[D any](parentCtx context.Context, vals []D, iter func(context.Context, int, D) bool) {
+	ctx := New(parentCtx)
 	for i, val := range vals {
 		Set(ctx, RangeProgress{Current: i, Total: len(vals)})
 
-		if !iter(New(ctx), i, val) {
+		if !iter(ctx, i, val) {
 			return
 		}
 	}
